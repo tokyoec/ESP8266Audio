@@ -26,6 +26,8 @@
 #endif
 #include "AudioOutputI2S.h"
 
+int aout_level = 0;
+
 AudioOutputI2S::AudioOutputI2S(int port, int output_mode, int dma_buf_count, int use_apll)
 {
   this->portNo = port;
@@ -167,6 +169,11 @@ bool AudioOutputI2S::begin()
   return true;
 }
 
+int AudioOutputI2S::getLevel()
+{
+  return aout_level;
+}
+
 bool AudioOutputI2S::ConsumeSample(int16_t sample[2])
 {
   int16_t ms[2];
@@ -183,6 +190,7 @@ bool AudioOutputI2S::ConsumeSample(int16_t sample[2])
 #ifdef ESP32
   uint32_t s32;
   if (output_mode == INTERNAL_DAC) {
+    aout_level = (int) sample[RIGHTCHANNEL];
     int16_t l = Amplify(ms[LEFTCHANNEL]) + 0x8000;
     int16_t r = Amplify(ms[RIGHTCHANNEL]) + 0x8000;
     s32 = (r<<16) | (l&0xffff);
